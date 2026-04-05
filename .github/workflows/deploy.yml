@@ -1,0 +1,79 @@
+name: CI/CD — ThilakGanji Portfolio
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── CI: Test & Build ──────────────────────────────────────────────
+  test-and-build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+  # ─── CD: Deploy to EC2 ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to EC2
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            echo "=== Pulling latest code ==="
+            cd /home/ubuntu/portfolio
+            git pull origin main
+
+            echo "=== Installing backend dependencies ==="
+            cd backend
+            npm ci --production
+
+            echo "=== Building frontend ==="
+            cd ../frontend
+            npm ci
+            npm run build
+
+            echo "=== Restarting backend with PM2 ==="
+            pm2 restart thilakganji-api || pm2 start /home/ubuntu/portfolio/backend/src/server.js --name thilakganji-api
+
+            echo "=== Reloading Nginx ==="
+            sudo systemctl reload nginx
+
+            echo "=== Done ==="
+            pm2 status
