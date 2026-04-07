@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thilak Ganji — Academic Tutor & Study Support</title>
+<meta name="description" content="I help students understand, not just submit. One-on-one academic tutoring in 40+ subjects.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/*═══════════════════════════════════════════════════
+  BASE & RESET
+═══════════════════════════════════════════════════*/
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0e0c;
+  --bg2:#1a1917;
+  --bg3:#232220;
+  --accent:#c8a55c;
+  --accent-dim:rgba(200,165,92,.15);
+  --cream:#e8e4dc;
+  --dim:#8a8578;
+  --muted:#5a5750;
+  --border:rgba(200,165,92,.12);
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --mono:'DM Mono','Courier New',monospace;
+}
+html{font-size:16px}
+body{
+  background:var(--bg);color:var(--cream);
+  font-family:var(--mono);font-weight:400;
+  overflow:hidden;cursor:none;
+  -webkit-font-smoothing:antialiased;
+}
+body.loaded{overflow:auto}
+::selection{background:var(--accent);color:var(--bg)}
+::-webkit-scrollbar{width:0px}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--mono);cursor:none;border:none;background:none;color:inherit}
+img{display:block;max-width:100%}
+
+/*═══════════════════════════════════════════════════
+  CUSTOM CURSOR
+═══════════════════════════════════════════════════*/
+.cursor{
+  position:fixed;top:0;left:0;z-index:10000;pointer-events:none;
+  mix-blend-mode:difference;
+}
+.cursor-dot{
+  width:8px;height:8px;background:var(--cream);border-radius:50%;
+  position:absolute;top:-4px;left:-4px;transition:transform .15s;
+}
+.cursor-ring{
+  width:48px;height:48px;border:1px solid var(--cream);border-radius:50%;
+  position:absolute;top:-24px;left:-24px;
+  transition:width .4s cubic-bezier(.16,1,.3,1),height .4s cubic-bezier(.16,1,.3,1),
+    top .4s cubic-bezier(.16,1,.3,1),left .4s cubic-bezier(.16,1,.3,1),
+    border-color .3s,background .3s;
+  display:flex;align-items:center;justify-content:center;
+}
+.cursor-label{
+  font-family:var(--mono);font-size:.55rem;letter-spacing:.15em;
+  text-transform:uppercase;opacity:0;transition:opacity .3s;color:var(--bg);
+}
+body.cursor-hover .cursor-ring{
+  width:80px;height:80px;top:-40px;left:-40px;
+  background:var(--cream);border-color:var(--cream);
+}
+body.cursor-hover .cursor-dot{transform:scale(0)}
+body.cursor-hover .cursor-label{opacity:1}
+body.cursor-drag .cursor-ring{
+  width:100px;height:100px;top:-50px;left:-50px;
+  background:var(--accent);border-color:var(--accent);
+}
+body.cursor-drag .cursor-label{opacity:1}
+
+/*═══════════════════════════════════════════════════
+  PRELOADER
+═══════════════════════════════════════════════════*/
+.preloader{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.preloader-counter{
+  font-family:var(--serif);font-size:clamp(5rem,15vw,12rem);
+  font-weight:300;color:var(--cream);line-height:1;
+  font-style:italic;
+}
+.preloader-line{
+  width:200px;height:1px;background:var(--muted);margin-top:2rem;
+  position:relative;overflow:hidden;
+}
+.preloader-fill{
+  position:absolute;left:0;top:0;height:100%;width:0;
+  background:var(--accent);transition:width .05s;
+}
+.preloader-text{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--muted);margin-top:1.5rem;
+}
+.preloader.done{
+  transition:clip-path 1.2s cubic-bezier(.76,0,.24,1);
+  clip-path:inset(0 0 100% 0);
+}
+
+/*═══════════════════════════════════════════════════
+  NAV
+═══════════════════════════════════════════════════*/
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  padding:1.5rem 3rem;display:flex;justify-content:space-between;align-items:center;
+  mix-blend-mode:difference;
+}
+.nav-logo{
+  font-family:var(--serif);font-size:1.5rem;font-weight:500;
+  font-style:italic;letter-spacing:-.02em;
+}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{
+  font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--cream);position:relative;padding:.5rem 0;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:1px;
+  background:var(--accent);transition:width .6s cubic-bezier(.16,1,.3,1);
+}
+.nav-links a:hover::after{width:100%}
+.nav-cta{
+  font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.8rem 2rem;border:1px solid var(--cream);
+  transition:all .4s cubic-bezier(.16,1,.3,1);
+}
+.nav-cta:hover{background:var(--cream);color:var(--bg)}
+.magnetic{display:inline-block;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+@media(max-width:768px){
+  .nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+}
+
+/*═══════════════════════════════════════════════════
+  HERO
+═══════════════════════════════════════════════════*/
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;padding:8rem 3rem 4rem;
+  position:relative;overflow:hidden;
+}
+.hero-eyebrow{
+  font-size:.65rem;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:2rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.hero-eyebrow::before{content:'';width:40px;height:1px;background:var(--accent)}
+.hero h1{
+  font-family:var(--serif);font-size:clamp(3.5rem,11vw,10rem);
+  font-weight:300;line-height:.92;letter-spacing:-.04em;
+  max-width:12ch;
+}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{
+  font-size:.85rem;color:var(--dim);max-width:45ch;
+  margin-top:3rem;line-height:1.8;letter-spacing:.02em;
+}
+.hero-scroll{
+  position:absolute;bottom:3rem;right:3rem;
+  writing-mode:vertical-rl;font-size:.6rem;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:1rem;
+}
+.hero-scroll::after{
+  content:'';width:1px;height:60px;background:var(--muted);
+  animation:scrollLine 2s ease-in-out infinite;
+}
+@keyframes scrollLine{
+  0%{transform:scaleY(0);transform-origin:top}
+  50%{transform:scaleY(1);transform-origin:top}
+  51%{transform-origin:bottom}
+  100%{transform:scaleY(0);transform-origin:bottom}
+}
+.hero-noise{
+  position:absolute;inset:0;opacity:.03;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* SVG shapes */
+.hero-shape{position:absolute;opacity:.06;animation:drift 20s ease-in-out infinite}
+.hero-shape:nth-child(2){animation-delay:-7s}
+.hero-shape:nth-child(3){animation-delay:-14s}
+@keyframes drift{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  33%{transform:translate(30px,-20px) rotate(120deg)}
+  66%{transform:translate(-20px,30px) rotate(240deg)}
+}
+
+/* Word reveal animation */
+.word-reveal{display:inline-block;overflow:hidden;vertical-align:bottom}
+.word-reveal span{
+  display:inline-block;
+  transform:translateY(110%);
+  transition:transform 1s cubic-bezier(.16,1,.3,1);
+}
+.word-reveal.visible span{transform:translateY(0)}
+
+/*═══════════════════════════════════════════════════
+  MARQUEE
+═══════════════════════════════════════════════════*/
+.marquee{
+  padding:2rem 0;overflow:hidden;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  position:relative;
+}
+.marquee-track{
+  display:flex;gap:0;white-space:nowrap;
+  animation:marquee 40s linear infinite;
+  width:max-content;
+}
+.marquee:hover .marquee-track{animation-duration:80s}
+.marquee-item{
+  font-family:var(--serif);font-size:clamp(1.5rem,4vw,3rem);
+  font-weight:300;font-style:italic;padding:0 2rem;
+  color:var(--dim);display:flex;align-items:center;gap:2rem;
+}
+.marquee-item .dot{
+  width:4px;height:4px;border-radius:50%;background:var(--accent);
+  flex-shrink:0;
+}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/*═══════════════════════════════════════════════════
+  SECTION COMMON
+═══════════════════════════════════════════════════*/
+section{position:relative}
+.section-pad{padding:10rem 3rem}
+.section-tag{
+  font-size:.6rem;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--accent);display:flex;align-items:center;gap:1rem;
+  margin-bottom:1.5rem;
+}
+.section-tag::before{content:'';width:24px;height:1px;background:var(--accent)}
+.section-title{
+  font-family:var(--serif);font-size:clamp(2.5rem,6vw,5rem);
+  font-weight:300;line-height:1.05;letter-spacing:-.03em;
+}
+.section-title em{font-style:italic;color:var(--accent)}
+@media(max-width:768px){.section-pad{padding:5rem 1.5rem}}
+
+/*═══════════════════════════════════════════════════
+  ABOUT
+═══════════════════════════════════════════════════*/
+.about-grid{
+  display:grid;grid-template-columns:1fr 1.8fr;gap:6rem;
+  margin-top:5rem;
+}
+.about-sticky{
+  position:sticky;top:8rem;align-self:start;
+}
+.about-sticky .big-num{
+  font-family:var(--serif);font-size:8rem;font-weight:300;
+  color:var(--accent);line-height:1;opacity:.3;
+}
+.about-text p{
+  font-size:.95rem;color:var(--dim);line-height:2;
+  margin-bottom:2rem;letter-spacing:.01em;
+}
+.about-text p strong{color:var(--cream);font-weight:500}
+.about-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:2rem}
+.about-tags span{
+  padding:.5rem 1.2rem;border:1px solid var(--border);
+  font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dim);transition:all .4s;
+}
+.about-tags span:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:768px){
+  .about-grid{grid-template-columns:1fr;gap:3rem}
+  .about-sticky{position:static}
+  .about-sticky .big-num{font-size:4rem}
+}
+
+/*═══════════════════════════════════════════════════
+  STATS
+═══════════════════════════════════════════════════*/
+.stats{
+  padding:8rem 3rem;border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.stats-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:0;
+}
+.stat{
+  padding:3rem 2rem;border-right:1px solid var(--border);
+  text-align:center;
+}
+.stat:last-child{border-right:none}
+.stat-num{
+  font-family:var(--serif);font-size:clamp(3rem,5vw,4.5rem);
+  font-weight:300;color:var(--cream);line-height:1;
+}
+.stat-num .suffix{font-size:.5em;color:var(--accent)}
+.stat-label{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--muted);margin-top:1rem;
+}
+@media(max-width:768px){
+  .stats{padding:4rem 1.5rem}
+  .stat{border-right:none;border-bottom:1px solid var(--border);padding:2rem 1rem}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/*═══════════════════════════════════════════════════
+  HORIZONTAL SCROLL — SUBJECTS
+═══════════════════════════════════════════════════*/
+.hscroll-wrap{
+  position:relative;height:400vh;
+}
+.hscroll-sticky{
+  position:sticky;top:0;height:100vh;overflow:hidden;
+  display:flex;align-items:center;
+}
+.hscroll-header{
+  position:absolute;top:3rem;left:3rem;z-index:2;
+}
+.hscroll-track{
+  display:flex;gap:2rem;padding:0 3rem;
+  will-change:transform;
+}
+.subject-card{
+  flex-shrink:0;width:clamp(280px,22vw,350px);height:420px;
+  background:var(--bg2);border:1px solid var(--border);
+  padding:2.5rem;display:flex;flex-direction:column;
+  justify-content:flex-end;position:relative;overflow:hidden;
+  transition:border-color .4s;
+}
+.subject-card:hover{border-color:var(--accent)}
+.subject-card .card-num{
+  font-family:var(--serif);font-size:6rem;font-weight:300;
+  color:var(--accent);opacity:.08;position:absolute;top:1rem;right:1.5rem;
+  line-height:1;
+}
+.subject-card .card-icon{
+  width:40px;height:40px;border:1px solid var(--accent);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin-bottom:auto;font-size:1rem;color:var(--accent);
+}
+.subject-card h3{
+  font-family:var(--serif);font-size:1.6rem;font-weight:400;
+  margin-bottom:.8rem;letter-spacing:-.01em;
+}
+.subject-card p{
+  font-size:.72rem;color:var(--dim);line-height:1.7;
+  letter-spacing:.02em;
+}
+@media(max-width:768px){
+  .hscroll-wrap{height:auto}
+  .hscroll-sticky{position:static;height:auto;flex-direction:column;padding:5rem 0}
+  .hscroll-header{position:static;padding:0 1.5rem;margin-bottom:2rem}
+  .hscroll-track{overflow-x:auto;padding:0 1.5rem 2rem;-webkit-overflow-scrolling:touch}
+  .subject-card{width:280px;height:360px}
+}
+
+/*═══════════════════════════════════════════════════
+  SERVICES — STICKY HEADER
+═══════════════════════════════════════════════════*/
+.services-grid{
+  display:grid;grid-template-columns:1fr 1.5fr;gap:6rem;margin-top:5rem;
+}
+.services-left{position:sticky;top:10rem;align-self:start}
+.services-left .services-count{
+  font-family:var(--serif);font-size:6rem;font-weight:300;
+  color:var(--accent);opacity:.2;line-height:1;
+}
+.service-item{
+  padding:3rem 0;border-bottom:1px solid var(--border);
+  display:grid;grid-template-columns:auto 1fr auto;gap:2rem;
+  align-items:start;transition:all .4s;
+}
+.service-item:hover{padding-left:1rem}
+.service-num{
+  font-family:var(--serif);font-size:1.2rem;font-style:italic;
+  color:var(--accent);min-width:2rem;
+}
+.service-item h4{font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:.5rem}
+.service-item p{font-size:.75rem;color:var(--dim);line-height:1.7}
+.service-arrow{
+  font-size:1.2rem;color:var(--muted);transition:all .4s;
+  transform:rotate(-45deg);
+}
+.service-item:hover .service-arrow{color:var(--accent);transform:rotate(0deg)}
+@media(max-width:768px){
+  .services-grid{grid-template-columns:1fr;gap:3rem}
+  .services-left{position:static}
+  .service-item{grid-template-columns:auto 1fr;gap:1rem}
+  .service-arrow{display:none}
+}
+
+/*═══════════════════════════════════════════════════
+  HOW IT WORKS
+═══════════════════════════════════════════════════*/
+.steps{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  margin-top:5rem;position:relative;
+}
+.step{
+  padding:3rem;border:1px solid var(--border);
+  border-right:none;position:relative;
+}
+.step:last-child{border-right:1px solid var(--border)}
+.step-num{
+  font-family:var(--serif);font-size:4rem;font-weight:300;
+  color:var(--accent);opacity:.15;line-height:1;margin-bottom:2rem;
+}
+.step h4{
+  font-family:var(--serif);font-size:1.5rem;font-weight:400;
+  margin-bottom:1rem;
+}
+.step p{font-size:.75rem;color:var(--dim);line-height:1.8}
+.step-line{
+  position:absolute;top:50%;left:0;right:0;height:1px;
+  pointer-events:none;
+}
+.step-line svg{width:100%;height:2px;overflow:visible}
+.step-line svg line{
+  stroke:var(--accent);stroke-width:1;stroke-dasharray:8 4;
+  stroke-dashoffset:100;transition:stroke-dashoffset 2s ease;
+}
+.step-line.visible svg line{stroke-dashoffset:0}
+@media(max-width:768px){
+  .steps{grid-template-columns:1fr}
+  .step{border-right:1px solid var(--border);border-bottom:none}
+  .step:last-child{border-bottom:1px solid var(--border)}
+}
+
+/*═══════════════════════════════════════════════════
+  DRAG SLIDER (Pricing & Testimonials)
+═══════════════════════════════════════════════════*/
+.drag-slider{
+  overflow:hidden;margin-top:4rem;position:relative;
+}
+.drag-track{
+  display:flex;gap:1.5rem;padding:0 3rem;
+  user-select:none;will-change:transform;
+  transition:transform .05s linear;
+}
+.drag-slider.dragging .drag-track{transition:none}
+.drag-hint{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--muted);margin-top:2rem;padding:0 3rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.drag-hint::before{content:'';width:40px;height:1px;background:var(--muted)}
+
+/* Pricing cards */
+.price-card{
+  flex-shrink:0;width:clamp(300px,30vw,380px);
+  padding:3rem;border:1px solid var(--border);
+  background:var(--bg2);position:relative;overflow:hidden;
+  transition:border-color .4s;
+}
+.price-card:hover{border-color:var(--accent)}
+.price-card.featured{border-color:var(--accent)}
+.price-card.featured::before{
+  content:'POPULAR';position:absolute;top:1.5rem;right:1.5rem;
+  font-size:.55rem;letter-spacing:.25em;color:var(--bg);
+  background:var(--accent);padding:.3rem .8rem;
+}
+.price-tier{font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent)}
+.price-amount{
+  font-family:var(--serif);font-size:3.5rem;font-weight:300;
+  margin:1.5rem 0;line-height:1;
+}
+.price-amount span{font-size:.9rem;color:var(--dim);font-family:var(--mono)}
+.price-desc{font-size:.75rem;color:var(--dim);line-height:1.7;margin-bottom:2rem}
+.price-features{list-style:none;margin-bottom:2.5rem}
+.price-features li{
+  font-size:.72rem;color:var(--dim);padding:.6rem 0;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.8rem;
+}
+.price-features li::before{content:'~';color:var(--accent)}
+.price-btn{
+  width:100%;padding:1rem;border:1px solid var(--cream);
+  font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+  text-align:center;transition:all .4s;display:block;
+}
+.price-btn:hover{background:var(--cream);color:var(--bg)}
+.price-card.featured .price-btn{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.price-card.featured .price-btn:hover{background:var(--cream);border-color:var(--cream)}
+
+/* Testimonial cards */
+.testi-card{
+  flex-shrink:0;width:clamp(320px,28vw,420px);
+  padding:2.5rem;border:1px solid var(--border);
+  background:var(--bg2);position:relative;
+  display:flex;flex-direction:column;transition:border-color .4s;
+}
+.testi-card:hover{border-color:var(--accent)}
+.testi-stars{color:var(--accent);font-size:.7rem;letter-spacing:.2em;margin-bottom:1.5rem}
+.testi-quote{
+  font-family:var(--serif);font-size:1.1rem;font-weight:300;
+  font-style:italic;line-height:1.8;flex:1;margin-bottom:2rem;
+}
+.testi-author{
+  display:flex;align-items:center;gap:1rem;
+  padding-top:1.5rem;border-top:1px solid var(--border);
+}
+.testi-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--bg3));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:.9rem;color:var(--bg);font-weight:500;
+}
+.testi-name{font-size:.8rem;font-weight:500}
+.testi-role{font-size:.65rem;color:var(--muted);margin-top:.2rem}
+
+/*═══════════════════════════════════════════════════
+  FAQ
+═══════════════════════════════════════════════════*/
+.faq-list{max-width:700px;margin:4rem auto 0}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{
+  padding:2rem 0;font-family:var(--serif);font-size:1.2rem;
+  font-weight:400;display:flex;justify-content:space-between;
+  align-items:center;cursor:none;width:100%;text-align:left;
+}
+.faq-icon{
+  font-size:1.2rem;color:var(--accent);transition:transform .5s cubic-bezier(.16,1,.3,1);
+  flex-shrink:0;margin-left:2rem;
+}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-a{
+  max-height:0;overflow:hidden;
+  transition:max-height .6s cubic-bezier(.16,1,.3,1),
+    padding .6s cubic-bezier(.16,1,.3,1);
+}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:2rem}
+.faq-a p{font-size:.8rem;color:var(--dim);line-height:1.8}
+
+/*═══════════════════════════════════════════════════
+  CONTACT
+═══════════════════════════════════════════════════*/
+.contact{text-align:center}
+.contact-big{
+  font-family:var(--serif);font-size:clamp(2.5rem,8vw,7rem);
+  font-weight:300;line-height:1.1;margin:3rem 0;
+  letter-spacing:-.03em;
+}
+.contact-big a{
+  color:var(--accent);font-style:italic;
+  text-decoration:underline;text-underline-offset:.15em;
+  text-decoration-thickness:1px;transition:text-decoration-color .3s;
+}
+.contact-big a:hover{text-decoration-color:transparent}
+.contact-details{
+  display:flex;justify-content:center;gap:4rem;margin-top:4rem;
+  flex-wrap:wrap;
+}
+.contact-detail{text-align:center}
+.contact-detail .label{
+  font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.5rem;
+}
+.contact-detail .value{font-size:.85rem;color:var(--dim)}
+
+/*═══════════════════════════════════════════════════
+  FOOTER REVEAL
+═══════════════════════════════════════════════════*/
+.footer-spacer{height:60vh;position:relative;z-index:2;background:var(--bg)}
+.footer{
+  position:fixed;bottom:0;left:0;right:0;z-index:1;
+  height:60vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:var(--bg2);border-top:1px solid var(--border);
+  overflow:hidden;
+}
+.footer-name{
+  font-family:var(--serif);font-size:clamp(4rem,18vw,16rem);
+  font-weight:300;color:var(--cream);opacity:.05;
+  letter-spacing:-.04em;line-height:1;white-space:nowrap;
+  position:absolute;
+}
+.footer-content{position:relative;z-index:2;text-align:center}
+.footer-content p{font-size:.7rem;color:var(--muted);letter-spacing:.15em}
+.footer-content .footer-links{
+  display:flex;gap:2rem;justify-content:center;margin-top:1.5rem;
+}
+.footer-content .footer-links a{
+  font-size:.65rem;color:var(--dim);letter-spacing:.15em;
+  text-transform:uppercase;transition:color .3s;
+}
+.footer-content .footer-links a:hover{color:var(--accent)}
+
+/*═══════════════════════════════════════════════════
+  NAV TRANSITION PANEL
+═══════════════════════════════════════════════════*/
+.transition-panel{
+  position:fixed;inset:0;z-index:9000;
+  background:var(--accent);
+  transform:scaleY(0);transform-origin:bottom;
+  transition:transform .6s cubic-bezier(.76,0,.24,1);
+  pointer-events:none;
+}
+.transition-panel.active{transform:scaleY(1);transform-origin:top}
+.transition-panel.exit{transform:scaleY(0);transform-origin:bottom}
+
+/*═══════════════════════════════════════════════════
+  TILT CARD
+═══════════════════════════════════════════════════*/
+.tilt-card{transition:transform .1s ease-out}
+
+/*═══════════════════════════════════════════════════
+  SCROLL REVEAL
+═══════════════════════════════════════════════════*/
+.reveal{opacity:0;transform:translateY(60px);transition:all 1s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
+
+/*═══════════════════════════════════════════════════
+  SVG BACKGROUND SHAPES
+═══════════════════════════════════════════════════*/
+.bg-shapes{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg-shapes svg{position:absolute;opacity:.04}
+.bg-shapes .shape-1{top:10%;right:5%;animation:spin 60s linear infinite}
+.bg-shapes .shape-2{bottom:15%;left:8%;animation:spin 45s linear infinite reverse}
+.bg-shapes .shape-3{top:40%;left:50%;animation:spin 80s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor">
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"><span class="cursor-label"></span></div>
+</div>
+
+<!-- TRANSITION PANEL -->
+<div class="transition-panel"></div>
+
+<!-- PRELOADER -->
+<div class="preloader">
+  <div class="preloader-counter">0</div>
+  <div class="preloader-line"><div class="preloader-fill"></div></div>
+  <div class="preloader-text">Loading experience</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-logo magnetic" data-cursor="link">Thilak.</a>
+  <ul class="nav-links">
+    <li><a href="#about" class="magnetic nav-anchor" data-cursor="link">About</a></li>
+    <li><a href="#subjects" class="magnetic nav-anchor" data-cursor="link">Subjects</a></li>
+    <li><a href="#services" class="magnetic nav-anchor" data-cursor="link">Services</a></li>
+    <li><a href="#pricing" class="magnetic nav-anchor" data-cursor="link">Pricing</a></li>
+    <li><a href="#faq" class="magnetic nav-anchor" data-cursor="link">FAQ</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta magnetic nav-anchor" data-cursor="link">Book a Session</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-noise"></div>
+  <!-- SVG shapes -->
+  <svg class="hero-shape" style="top:15%;right:10%;width:200px;height:200px" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="var(--accent)" stroke-width=".5"/></svg>
+  <svg class="hero-shape" style="bottom:20%;left:5%;width:150px;height:150px" viewBox="0 0 150 150"><rect x="20" y="20" width="110" height="110" fill="none" stroke="var(--accent)" stroke-width=".5" transform="rotate(15 75 75)"/></svg>
+  <svg class="hero-shape" style="top:60%;right:25%;width:100px;height:100px" viewBox="0 0 100 100"><polygon points="50,5 95,97 5,97" fill="none" stroke="var(--accent)" stroke-width=".5"/></svg>
+  <div style="position:relative;z-index:2">
+    <div class="hero-eyebrow reveal">Academic Tutor &bull; Toowoomba, QLD</div>
+    <h1 id="hero-title"></h1>
+    <p class="hero-sub reveal reveal-delay-2">One-on-one tutoring for university students. 40+ subjects. I teach you the concepts so you can write better work yourself.</p>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track" id="marquee-track"></div>
+</div>
+
+<!-- ABOUT -->
+<section class="section-pad" id="about">
+  <div class="bg-shapes">
+    <svg class="shape-1" width="300" height="300" viewBox="0 0 300 300"><circle cx="150" cy="150" r="140" fill="none" stroke="var(--accent)" stroke-width="1"/><circle cx="150" cy="150" r="100" fill="none" stroke="var(--accent)" stroke-width=".5"/></svg>
+    <svg class="shape-2" width="200" height="200" viewBox="0 0 200 200"><rect x="10" y="10" width="180" height="180" fill="none" stroke="var(--accent)" stroke-width=".5" rx="0"/></svg>
+  </div>
+  <div class="section-tag reveal">About</div>
+  <div class="section-title reveal"><em>I help students</em><br>understand, not just submit.</div>
+  <div class="about-grid">
+    <div class="about-sticky">
+      <div class="big-num reveal">TG</div>
+    </div>
+    <div class="about-text">
+      <p class="reveal">I'm <strong>Thilak Ganji</strong> — a Master of Information Systems student at Holmes Institute Brisbane, originally from India. I've tutored <strong>800+ students</strong> across <strong>40+ subjects</strong>, and I've done over 800 tutoring sessions.</p>
+      <p class="reveal">I don't write assignments for you. That's not what this is. I sit with you — over Zoom, over coffee, whatever works — and I break things down until they make sense. Whether it's Python loops, Porter's Five Forces, or APA referencing, I'll make it click.</p>
+      <p class="reveal">My students come from all over Australia and beyond. Business, IT, Data, Accounting, Cyber Security — if it's taught at uni, I've probably tutored it.</p>
+      <div class="about-tags reveal">
+        <span>Python</span><span>Java</span><span>SQL</span><span>Power BI</span>
+        <span>Strategy</span><span>HRM</span><span>Statistics</span><span>Excel</span>
+        <span>BPMN</span><span>Networks</span><span>Accounting</span><span>Research</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats" id="stats">
+  <div class="stats-grid">
+    <div class="stat reveal">
+      <div class="stat-num"><span class="count-up" data-target="800">0</span><span class="suffix">+</span></div>
+      <div class="stat-label">Sessions delivered</div>
+    </div>
+    <div class="stat reveal reveal-delay-1">
+      <div class="stat-num"><span class="count-up" data-target="800">0</span><span class="suffix">+</span></div>
+      <div class="stat-label">Students supported</div>
+    </div>
+    <div class="stat reveal reveal-delay-2">
+      <div class="stat-num"><span class="count-up" data-target="40">0</span><span class="suffix">+</span></div>
+      <div class="stat-label">Subjects covered</div>
+    </div>
+    <div class="stat reveal reveal-delay-3">
+      <div class="stat-num"><span class="count-up" data-target="98">0</span><span class="suffix">%</span></div>
+      <div class="stat-label">On-time delivery</div>
+    </div>
+    <div class="stat reveal reveal-delay-4">
+      <div class="stat-num">4.9<span class="suffix">&#9733;</span></div>
+      <div class="stat-label">Average rating</div>
+    </div>
+  </div>
+</section>
+
+<!-- HORIZONTAL SCROLL — SUBJECTS -->
+<section class="hscroll-wrap" id="subjects">
+  <div class="hscroll-sticky">
+    <div class="hscroll-header">
+      <div class="section-tag">Subjects</div>
+      <div class="section-title"><em>40+</em> subjects<br>I tutor</div>
+    </div>
+    <div class="hscroll-track" id="hscroll-track">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section-pad" id="services">
+  <div class="section-tag reveal">Services</div>
+  <div class="section-title reveal">What I <em>actually</em> do</div>
+  <div class="services-grid">
+    <div class="services-left">
+      <div class="services-count reveal">07</div>
+      <p class="reveal" style="font-size:.8rem;color:var(--dim);margin-top:1rem;line-height:1.8">Every session is tailored to what you need. No cookie-cutter approach.</p>
+    </div>
+    <div class="services-right">
+      <div class="service-item reveal" data-cursor="link">
+        <span class="service-num">01</span>
+        <div><h4>One-on-One Tutoring</h4><p>Live sessions over Zoom or Google Meet. I walk you through concepts at your pace.</p></div>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <div class="service-item reveal" data-cursor="link">
+        <span class="service-num">02</span>
+        <div><h4>Draft Review & Feedback</h4><p>Send me your draft. I'll review the structure, arguments, and referencing — then walk you through improvements.</p></div>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <div class="service-item reveal" data-cursor="link">
+        <span class="service-num">03</span>
+        <div><h4>Concept Walkthroughs</h4><p>Struggling with a specific topic? I break it down until it clicks. No jargon, no assumptions.</p></div>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <div class="service-item reveal" data-cursor="link">
+        <span class="service-num">04</span>
+        <div><h4>Exam Preparation</h4><p>Past papers, key topics, practice questions. We build a study plan that works.</p></div>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <div class="service-item reveal" data-cursor="link">
+        <span class="service-num">05</span>
+        <div><h4>Study Skills Coaching</h4><p>Time management, note-taking, active recall. The meta-skills that make everything easier.</p></div>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <div class="service-item reveal" data-cursor="link">
+        <span class="service-num">06</span>
+        <div><h4>Referencing Help</h4><p>APA, Harvard, IEEE — whichever your uni uses. I'll show you how to get it right every time.</p></div>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <div class="service-item reveal" data-cursor="link">
+        <span class="service-num">07</span>
+        <div><h4>Presentation Coaching</h4><p>Slide design, speaking flow, handling Q&A. Walk into that presentation confident.</p></div>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-pad" id="how">
+  <div class="section-tag reveal">Process</div>
+  <div class="section-title reveal">Three steps to<br><em>better grades</em></div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <h4>Tell me what you need</h4>
+      <p>Send me a message with your subject, topic, and what you're stuck on. I'll get back to you within a few hours.</p>
+    </div>
+    <div class="step reveal reveal-delay-1">
+      <div class="step-num">02</div>
+      <h4>We schedule a session</h4>
+      <p>Pick a time that works for you. I'm flexible — mornings, evenings, weekends. We hop on Zoom and get to work.</p>
+    </div>
+    <div class="step reveal reveal-delay-2">
+      <div class="step-num">03</div>
+      <h4>You understand it</h4>
+      <p>No more copy-paste. You walk away actually understanding the material. That's the whole point.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section-pad" id="pricing">
+  <div class="section-tag reveal">Pricing</div>
+  <div class="section-title reveal">Simple, <em>honest</em> pricing</div>
+  <div class="drag-slider" data-cursor-label="DRAG">
+    <div class="drag-track">
+      <div class="price-card tilt-card">
+        <div class="price-tier">Quick Help</div>
+        <div class="price-amount">$25 <span>/hr</span></div>
+        <p class="price-desc">Single session. No commitment. Good for a one-off question or last-minute help.</p>
+        <ul class="price-features">
+          <li>1 hour live session</li>
+          <li>Any subject</li>
+          <li>Zoom or Google Meet</li>
+          <li>Follow-up notes</li>
+        </ul>
+        <a href="#contact" class="price-btn magnetic" data-cursor="link">Get started</a>
+      </div>
+      <div class="price-card featured tilt-card">
+        <div class="price-tier">Regular Support</div>
+        <div class="price-amount">$20 <span>/hr</span></div>
+        <p class="price-desc">5-session pack. Save $25 total. Best for ongoing assignment support throughout the semester.</p>
+        <ul class="price-features">
+          <li>5 hours (use anytime)</li>
+          <li>Priority booking</li>
+          <li>Draft review included</li>
+          <li>WhatsApp support</li>
+        </ul>
+        <a href="#contact" class="price-btn magnetic" data-cursor="link">Get started</a>
+      </div>
+      <div class="price-card tilt-card">
+        <div class="price-tier">Semester Plan</div>
+        <div class="price-amount">$18 <span>/hr</span></div>
+        <p class="price-desc">10+ sessions. The serious student package. Consistent support across the whole semester.</p>
+        <ul class="price-features">
+          <li>10+ hours</li>
+          <li>Study plan included</li>
+          <li>Exam prep sessions</li>
+          <li>Unlimited chat support</li>
+        </ul>
+        <a href="#contact" class="price-btn magnetic" data-cursor="link">Get started</a>
+      </div>
+    </div>
+    <div class="drag-hint">Drag to explore</div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section-pad" id="testimonials">
+  <div class="section-tag reveal">Reviews</div>
+  <div class="section-title reveal">What students <em>say</em></div>
+  <div class="drag-slider" data-cursor-label="DRAG">
+    <div class="drag-track">
+      <div class="testi-card tilt-card">
+        <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testi-quote">"Thilak explained database normalisation in 20 minutes better than my lecturer did all semester. I went from a fail to a credit."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">R</div>
+          <div><div class="testi-name">Rahul K.</div><div class="testi-role">IT Student, Holmes Institute</div></div>
+        </div>
+      </div>
+      <div class="testi-card tilt-card">
+        <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testi-quote">"I was panicking about my strategy assignment. Thilak sat with me for two hours and helped me build the whole framework. Got a distinction."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">S</div>
+          <div><div class="testi-name">Sarah M.</div><div class="testi-role">Business Student, QUT</div></div>
+        </div>
+      </div>
+      <div class="testi-card tilt-card">
+        <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testi-quote">"Best tutor I've had in Australia. He doesn't just give you answers — he makes sure you actually get it. My Python skills are solid now."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">A</div>
+          <div><div class="testi-name">Aisha N.</div><div class="testi-role">CS Student, USQ</div></div>
+        </div>
+      </div>
+      <div class="testi-card tilt-card">
+        <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testi-quote">"I needed help with APA referencing and research methods. Thilak made it so simple. My reference list is perfect now. Highly recommend."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">J</div>
+          <div><div class="testi-name">James L.</div><div class="testi-role">MBA Student, Griffith</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="drag-hint">Drag to explore</div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section-pad" id="faq">
+  <div class="section-tag reveal">FAQ</div>
+  <div class="section-title reveal" style="text-align:center">Common <em>questions</em></div>
+  <div class="faq-list">
+    <div class="faq-item reveal">
+      <button class="faq-q" data-cursor="link">Do you write assignments for students?<span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>No. Never. I'm a tutor, not a contract cheater. I teach you the concepts and guide your thinking so you can write better work yourself. That's the whole point — you actually learn.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" data-cursor="link">What subjects do you cover?<span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>40+ subjects across Business, IT, Data Analytics, Cyber Security, AI/ML, Accounting, Process Modelling, and Academic Skills. If your subject isn't listed, ask me — I probably cover it.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" data-cursor="link">How do sessions work?<span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>We meet on Zoom or Google Meet. You share your screen, I share mine. We work through concepts together, solve problems live, or review your draft. It's interactive, not a lecture.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" data-cursor="link">Can you help with coding assignments?<span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Yes — I tutor Python, Java, C++, JavaScript, SQL, and more. I'll explain the logic, walk through your code, debug with you, and help you understand what each line does. You write the code.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" data-cursor="link">What if I need help last minute?<span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>I try to accommodate urgent requests. Message me on WhatsApp and I'll see what I can do. The Quick Help plan is perfect for last-minute sessions.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" data-cursor="link">Do you offer group sessions?<span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Currently I focus on one-on-one sessions for the best results. If you have a study group, reach out and we can discuss options.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section-pad contact" id="contact">
+  <div class="section-tag reveal" style="justify-content:center">Get in touch</div>
+  <div class="contact-big reveal">
+    Ready to actually<br><em>understand</em> your course?<br>
+    <a href="mailto:ganjithilak.gt@gmail.com" data-cursor="link">Let's talk.</a>
+  </div>
+  <div class="contact-details reveal">
+    <div class="contact-detail">
+      <div class="label">Email</div>
+      <div class="value"><a href="mailto:ganjithilak.gt@gmail.com" data-cursor="link">ganjithilak.gt@gmail.com</a></div>
+    </div>
+    <div class="contact-detail">
+      <div class="label">WhatsApp</div>
+      <div class="value"><a href="https://wa.me/61494137203" data-cursor="link">+61 494 137 203</a></div>
+    </div>
+    <div class="contact-detail">
+      <div class="label">Location</div>
+      <div class="value">Toowoomba, QLD</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER REVEAL -->
+<div class="footer-spacer"></div>
+<footer class="footer">
+  <div class="footer-name">THILAK</div>
+  <div class="footer-content">
+    <p>&copy; 2026 Thilak Ganji &middot; Academic Tutor</p>
+    <div class="footer-links">
+      <a href="mailto:ganjithilak.gt@gmail.com" data-cursor="link">Email</a>
+      <a href="https://wa.me/61494137203" data-cursor="link">WhatsApp</a>
+      <a href="https://github.com/ganjithilak" data-cursor="link">GitHub</a>
+      <a href="/login" data-cursor="link">Admin</a>
+    </div>
+  </div>
+</footer>
+
+<!-- LENIS SMOOTH SCROLL -->
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+/*═══════════════════════════════════════════════════
+  PRELOADER
+═══════════════════════════════════════════════════*/
+const preloader = document.querySelector('.preloader');
+const counter = document.querySelector('.preloader-counter');
+const fill = document.querySelector('.preloader-fill');
+let count = 0;
+const interval = setInterval(() => {
+  count += Math.floor(Math.random() * 8) + 1;
+  if (count >= 100) count = 100;
+  counter.textContent = count;
+  fill.style.width = count + '%';
+  if (count >= 100) {
+    clearInterval(interval);
+    setTimeout(() => {
+      preloader.classList.add('done');
+      document.body.classList.add('loaded');
+      initHeroScramble();
+      setTimeout(() => preloader.style.display = 'none', 1200);
+    }, 400);
+  }
+}, 50);
+
+/*═══════════════════════════════════════════════════
+  LENIS SMOOTH SCROLL
+═══════════════════════════════════════════════════*/
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smoothWheel: true,
+});
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+/*═══════════════════════════════════════════════════
+  CUSTOM CURSOR
+═══════════════════════════════════════════════════*/
+const cursor = document.querySelector('.cursor');
+const cursorDot = document.querySelector('.cursor-dot');
+const cursorRing = document.querySelector('.cursor-ring');
+const cursorLabel = document.querySelector('.cursor-label');
+let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+function updateCursor() {
+  cursorX += (mouseX - cursorX) * 0.15;
+  cursorY += (mouseY - cursorY) * 0.15;
+  cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
+  requestAnimationFrame(updateCursor);
+}
+updateCursor();
+
+// Cursor states
+document.querySelectorAll('[data-cursor="link"]').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    document.body.classList.add('cursor-hover');
+    cursorLabel.textContent = 'VIEW';
+  });
+  el.addEventListener('mouseleave', () => {
+    document.body.classList.remove('cursor-hover');
+    cursorLabel.textContent = '';
+  });
+});
+document.querySelectorAll('[data-cursor-label]').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    document.body.classList.add('cursor-drag');
+    cursorLabel.textContent = el.dataset.cursorLabel;
+  });
+  el.addEventListener('mouseleave', () => {
+    document.body.classList.remove('cursor-drag');
+    cursorLabel.textContent = '';
+  });
+});
+
+// Hide cursor on mobile
+if ('ontouchstart' in window) {
+  cursor.style.display = 'none';
+  document.body.style.cursor = 'auto';
+  document.querySelectorAll('a,button').forEach(el => el.style.cursor = 'pointer');
+}
+
+/*═══════════════════════════════════════════════════
+  HERO TEXT SCRAMBLE
+═══════════════════════════════════════════════════*/
+function initHeroScramble() {
+  const title = document.getElementById('hero-title');
+  const finalHTML = 'I help you <em>understand</em>';
+  const finalText = 'I help you understand';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+  let iteration = 0;
+  const speed = 40;
+  const maxIter = 12;
+
+  const scrambleInterval = setInterval(() => {
+    let result = '';
+    for (let i = 0; i < finalText.length; i++) {
+      if (finalText[i] === ' ') { result += ' '; continue; }
+      if (i < iteration) {
+        result += finalText[i];
+      } else {
+        result += chars[Math.floor(Math.random() * chars.length)];
+      }
+    }
+    // Wrap "understand" in em when revealed
+    if (iteration >= 11) {
+      result = result.substring(0, 11) + '<em>' + result.substring(11) + '</em>';
+    }
+    title.innerHTML = result;
+    iteration += 0.5;
+    if (iteration > finalText.length) {
+      clearInterval(scrambleInterval);
+      title.innerHTML = finalHTML;
+    }
+  }, speed);
+}
+
+/*═══════════════════════════════════════════════════
+  MARQUEE — BUILD
+═══════════════════════════════════════════════════*/
+const subjects = [
+  'Python','Strategy','Power BI','Java','SQL','Excel','Accounting',
+  'Networks','Cyber Security','BPMN','Statistics','Web Dev','HRM',
+  'Marketing','C++','Data Modelling','AI/ML','Research Methods',
+  'JavaScript','Project Management'
+];
+const marqueeTrack = document.getElementById('marquee-track');
+const marqueeHTML = subjects.map(s => `<span class="marquee-item"><span class="dot"></span>${s}</span>`).join('');
+marqueeTrack.innerHTML = marqueeHTML + marqueeHTML;
+
+/*═══════════════════════════════════════════════════
+  HORIZONTAL SCROLL — SUBJECTS
+═══════════════════════════════════════════════════*/
+const subjectCards = [
+  { num: '01', icon: '&#9670;', title: 'Business & Management', desc: 'Strategy, SWOT, Porter\'s Five Forces, Operations, ITIL, Supply Chain, Marketing, HRM, Ethics' },
+  { num: '02', icon: '&#9651;', title: 'IT & Computer Science', desc: 'Python, Java, C++, JavaScript, SQL, Software Engineering, System Analysis, Data Structures, Web Dev' },
+  { num: '03', icon: '&#9675;', title: 'Data & Analytics', desc: 'Power BI, Tableau, Excel, Statistics, Data Modelling, Business Intelligence, Data Visualisation' },
+  { num: '04', icon: '&#9674;', title: 'Cyber Security', desc: 'Risk Assessment, Threat Modelling, Security Frameworks, Network Security, Ethical Hacking Concepts' },
+  { num: '05', icon: '&#9633;', title: 'AI & Machine Learning', desc: 'ML Concepts, Neural Networks, AI Ethics, Deep Learning Fundamentals, Model Evaluation' },
+  { num: '06', icon: '&#9650;', title: 'Process Modelling', desc: 'BPMN, SAP Signavio, Process Simulation, Workflow Design, Business Process Improvement' },
+  { num: '07', icon: '&#9671;', title: 'Accounting & Finance', desc: 'Financial Statements, Ratio Analysis, Budgeting, Cost Accounting, Management Accounting' },
+  { num: '08', icon: '&#9645;', title: 'Academic Skills', desc: 'APA/Harvard/IEEE Referencing, Research Methods, Academic Writing, Critical Thinking, Presentations' },
+];
+const hscrollTrack = document.getElementById('hscroll-track');
+hscrollTrack.innerHTML = subjectCards.map(c => `
+  <div class="subject-card tilt-card">
+    <div class="card-num">${c.num}</div>
+    <div class="card-icon">${c.icon}</div>
+    <h3>${c.title}</h3>
+    <p>${c.desc}</p>
+  </div>
+`).join('');
+
+// Horizontal scroll logic
+const hscrollWrap = document.querySelector('.hscroll-wrap');
+const hscrollSticky = document.querySelector('.hscroll-sticky');
+if (window.innerWidth > 768) {
+  lenis.on('scroll', () => {
+    const rect = hscrollWrap.getBoundingClientRect();
+    const progress = Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight)));
+    const trackWidth = hscrollTrack.scrollWidth - window.innerWidth + 100;
+    hscrollTrack.style.transform = `translateX(${-progress * trackWidth}px)`;
+  });
+}
+
+/*═══════════════════════════════════════════════════
+  SCROLL REVEALS (IntersectionObserver)
+═══════════════════════════════════════════════════*/
+const revealObserver = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+);
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/*═══════════════════════════════════════════════════
+  COUNT UP
+═══════════════════════════════════════════════════*/
+const countObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const target = parseInt(el.dataset.target);
+    const duration = 2000;
+    const start = performance.now();
+    function update(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutExpo
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      el.textContent = Math.floor(ease * target);
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+    countObserver.unobserve(el);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
+
+/*═══════════════════════════════════════════════════
+  MAGNETIC BUTTONS
+═══════════════════════════════════════════════════*/
+document.querySelectorAll('.magnetic').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    el.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+  });
+  el.addEventListener('mouseleave', () => {
+    el.style.transform = 'translate(0, 0)';
+  });
+});
+
+/*═══════════════════════════════════════════════════
+  DRAG SLIDERS
+═══════════════════════════════════════════════════*/
+document.querySelectorAll('.drag-slider').forEach(slider => {
+  const track = slider.querySelector('.drag-track');
+  let isDown = false, startX, scrollLeft, velX = 0, momentumID;
+
+  const start = (e) => {
+    isDown = true;
+    slider.classList.add('dragging');
+    startX = (e.pageX || e.touches[0].pageX) - track.offsetLeft;
+    scrollLeft = getTranslateX(track);
+    velX = 0;
+    cancelAnimationFrame(momentumID);
+  };
+  const move = (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = (e.pageX || e.touches[0].pageX) - track.offsetLeft;
+    const walk = x - startX;
+    velX = walk - (getTranslateX(track) - scrollLeft);
+    const newX = scrollLeft + walk;
+    const maxScroll = -(track.scrollWidth - slider.offsetWidth + 60);
+    track.style.transform = `translateX(${Math.max(maxScroll, Math.min(0, newX))}px)`;
+  };
+  const end = () => {
+    if (!isDown) return;
+    isDown = false;
+    slider.classList.remove('dragging');
+    // Momentum
+    const decel = () => {
+      velX *= 0.92;
+      if (Math.abs(velX) < 0.5) return;
+      const cur = getTranslateX(track);
+      const maxScroll = -(track.scrollWidth - slider.offsetWidth + 60);
+      const next = Math.max(maxScroll, Math.min(0, cur + velX));
+      track.style.transform = `translateX(${next}px)`;
+      momentumID = requestAnimationFrame(decel);
+    };
+    decel();
+  };
+
+  slider.addEventListener('mousedown', start);
+  slider.addEventListener('mousemove', move);
+  slider.addEventListener('mouseup', end);
+  slider.addEventListener('mouseleave', end);
+  slider.addEventListener('touchstart', start, { passive: true });
+  slider.addEventListener('touchmove', move, { passive: false });
+  slider.addEventListener('touchend', end);
+});
+
+function getTranslateX(el) {
+  const st = window.getComputedStyle(el);
+  const matrix = st.transform;
+  if (matrix === 'none') return 0;
+  return parseFloat(matrix.split(',')[4]);
+}
+
+/*═══════════════════════════════════════════════════
+  TILT CARDS
+═══════════════════════════════════════════════════*/
+document.querySelectorAll('.tilt-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(800px) rotateY(0) rotateX(0) scale(1)';
+  });
+});
+
+/*═══════════════════════════════════════════════════
+  FAQ ACCORDION
+═══════════════════════════════════════════════════*/
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+/*═══════════════════════════════════════════════════
+  NAV TRANSITION ON ANCHOR CLICK
+═══════════════════════════════════════════════════*/
+const panel = document.querySelector('.transition-panel');
+document.querySelectorAll('.nav-anchor').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const href = link.getAttribute('href');
+    panel.classList.remove('exit');
+    panel.classList.add('active');
+    setTimeout(() => {
+      const target = document.querySelector(href);
+      if (target) lenis.scrollTo(target, { offset: -50 });
+      panel.classList.remove('active');
+      panel.classList.add('exit');
+      setTimeout(() => panel.classList.remove('exit'), 600);
+    }, 500);
+  });
+});
+
+})();
+</script>
+</body>
+</html>
