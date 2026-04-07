@@ -562,16 +562,16 @@ section{position:relative}
 /*═══════════════════════════════════════════════════
   FOOTER REVEAL
 ═══════════════════════════════════════════════════*/
-.footer-spacer{height:25vh;position:relative;z-index:2;background:var(--bg)}
+.footer-spacer{display:none}
 .footer{
-  position:fixed;bottom:0;left:0;right:0;z-index:-1;
-  height:25vh;display:flex;flex-direction:column;
+  position:relative;
+  padding:2rem 3rem;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   background:var(--bg2);border-top:1px solid var(--border);
   overflow:hidden;
 }
 .footer-name{
-  font-family:var(--serif);font-size:clamp(3rem,12vw,9rem);
+  font-family:var(--serif);font-size:clamp(2rem,6vw,4rem);
   font-weight:300;color:var(--cream);opacity:.04;
   letter-spacing:-.04em;line-height:1;white-space:nowrap;
   position:absolute;
